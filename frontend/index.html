@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes & Tasks App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen">
+            <div class="login-container">
+                <h1>📝 Notes & Tasks</h1>
+                <p>Secure note-taking with Keycloak authentication</p>
+                <button id="login-btn" class="btn btn-primary">Login with Keycloak</button>
+            </div>
+        </div>
+
+        <!-- Main App Screen -->
+        <div id="main-screen" class="screen hidden">
+            <header>
+                <h1>📝 My Notes & Tasks</h1>
+                <div class="user-info">
+                    <span id="username"></span>
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+            </header>
+
+            <main>
+                <div class="add-note-section">
+                    <h2>Add New Note</h2>
+                    <input type="text" id="note-title" placeholder="Title" />
+                    <textarea id="note-content" placeholder="Content"></textarea>
+                    <button id="add-note-btn" class="btn btn-primary">Add Note</button>
+                </div>
+
+                <div class="notes-section">
+                    <h2>My Notes</h2>
+                    <div id="notes-list"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
