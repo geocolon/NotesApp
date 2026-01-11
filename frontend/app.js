@@ -9,8 +9,8 @@ let accessToken = null;
 let keycloak = null;
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuthentication();
+document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuthentication();
     setupEventListeners();
 });
 
@@ -20,22 +20,90 @@ function setupEventListeners() {
     document.getElementById('add-note-btn').addEventListener('click', addNote);
 }
 
-function checkAuthentication() {
+async function checkAuthentication() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
 
     accessToken = localStorage.getItem('access_token');
 
     if (code && !accessToken) {
-        // Exchange code for token (simplified - in production use proper OAuth flow)
-        console.log('Authorization code received');
+        // Exchange code for token
+        await exchangeCodeForToken(code);
+        // Clean URL
+        window.history.replaceState({}, document.title, '/');
+        return;
     }
 
     if (accessToken) {
-        showMainScreen();
-        loadNotes();
+        try {
+            // Verify token is still valid
+            const decoded = parseJwt(accessToken);
+            if (decoded.exp * 1000 < Date.now()) {
+                // Token expired
+                localStorage.removeItem('access_token');
+                accessToken = null;
+                showLoginScreen();
+            } else {
+                showMainScreen();
+                loadNotes();
+            }
+        } catch (error) {
+            showMainScreen();
+            loadNotes();
+        }
     } else {
         showLoginScreen();
+    }
+}
+
+async function exchangeCodeForToken(code) {
+    try {
+        const tokenUrl = `${KEYCLOAK_URL}/realms/${REALM}/protocol/openid-connect/token`;
+        
+        const response = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                grant_type: 'authorization_code',
+                client_id: CLIENT_ID,
+                code: code,
+                redirect_uri: REDIRECT_URI
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Token exchange failed');
+        }
+
+        const data = await response.json();
+        accessToken = data.access_token;
+        localStorage.setItem('access_token', accessToken);
+        
+        // Decode token to get username
+        const decoded = parseJwt(accessToken);
+        localStorage.setItem('username', decoded.preferred_username || decoded.name || 'User');
+        
+        showMainScreen();
+        loadNotes();
+    } catch (error) {
+        console.error('Error exchanging code for token:', error);
+        alert('Login failed. Please try again.');
+        showLoginScreen();
+    }
+}
+
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (error) {
+        return {};
     }
 }
 
