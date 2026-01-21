@@ -1,9 +1,9 @@
 // Configuration
-const KEYCLOAK_URL = 'http://localhost:8080';
+const KEYCLOAK_URL = 'https://blerdalerts.com';
 const REALM = 'notes-realm';
 const CLIENT_ID = 'notes-client';
-const BACKEND_URL = 'http://localhost:5001';
-const REDIRECT_URI = 'http://localhost:3000';
+const BACKEND_URL = 'https://blerdalerts.com/api';
+const REDIRECT_URI = 'https://blerdalerts.com';
 
 let accessToken = null;
 let keycloak = null;
