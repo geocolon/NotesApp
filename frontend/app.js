@@ -2,7 +2,7 @@
 const KEYCLOAK_URL = 'https://blerdalerts.com';
 const REALM = 'notes-realm';
 const CLIENT_ID = 'notes-client';
-const BACKEND_URL = 'https://blerdalerts.com/api';
+const BACKEND_URL = 'https://blerdalerts.com/';
 const REDIRECT_URI = 'https://blerdalerts.com';
 
 let accessToken = null;
